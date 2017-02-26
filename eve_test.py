@@ -1,4 +1,4 @@
-from Eve import Eve
+from eve import Eve
 
 import torch
 import torch.nn as nn
@@ -56,6 +56,7 @@ class Net(nn.Module):
 
 def train(epoch, model, optimizer):
     model.train()
+    total_loss = 0
     for batch_idx, (data, target) in enumerate(train_loader):
         if cuda:
             data, target = data.cuda(), target.cuda()
@@ -69,11 +70,13 @@ def train(epoch, model, optimizer):
         loss = optimizer.step(closure)
         if type(loss) is not float:
             loss = loss.data[0]
+        total_loss += loss*batch_size/len(train_loader)
         if batch_idx % 20 == 0:
             print('\rTrain Epoch: {} [{}/{} ({:>4.2%})] Loss: {:>5.3}'.format(
                   epoch, batch_idx * len(data), len(train_loader.dataset),
-                  batch_idx / len(train_loader), loss), end="")
-    return loss
+                  batch_idx / len(train_loader), total_loss), 
+                  end="")
+    return total_loss
 
 
 def test(epoch, model):
