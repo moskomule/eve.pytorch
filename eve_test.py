@@ -76,7 +76,7 @@ def train(epoch, model, optimizer):
     return loss
 
 
-def test(epoch):
+def test(epoch, model):
     model.eval()
     test_loss = 0
     correct = 0
@@ -96,37 +96,40 @@ def test(epoch):
     return test_loss
 
 
-def plot(loss_a, loss_b):
+def plot(loss_a, loss_b, filename, ylabel):
     import matplotlib
     matplotlib.use("AGG")
     import matplotlib.pyplot as plt
     import numpy as np
-    log_a, log_b = np.log(loss_a), np.log(loss_b)
-    plt.plot(log_a)
-    plt.plot(log_b)
+    plt.plot(loss_a)
+    plt.plot(loss_b)
     plt.legend(["Eve", "Adam"])
     plt.xlabel("epochs")
-    plt.ylabel("training loss")
-    plt.savefig("./eve_losses.png")
+    plt.ylabel(ylabel)
+    plt.savefig(filename)
+    plt.clf()
 
 print("Eve")
 eve_loss = []
+eve_test_loss = []
 model = Net()
+if cuda:
+    model.cuda()
 optimizer = Eve(model.parameters())
 for i in range(1, epochs + 1):
-    if cuda:
-        model.cuda()
     eve_loss.append(train(i, model, optimizer))
-    test(i)
+    eve_test_loss.append(test(i, model))
 
 print("Adam")
 adam_loss = []
+adam_test_loss = []
 model = Net()
+if cuda:
+    model.cuda()
 optimizer = optim.Adam(model.parameters())
 for i in range(1, epochs + 1):
-    if cuda:
-        model.cuda()
     adam_loss.append(train(i, model, optimizer))
-    test(i)
+    adam_test_loss.append(test(i, model))
 
-plot(eve_loss, adam_loss)
+plot(eve_loss, adam_loss, "eve_loss.png", "training loss")
+plot(eve_test_loss, adam_test_loss, "eve_test_loss.png", "testing loss")
