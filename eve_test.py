@@ -14,10 +14,7 @@ from torch.autograd import Variable
 # variables
 batch_size = 128
 epochs = 100
-
-cuda = False
-if torch.cuda.is_available():
-    cuda = True
+cuda = torch.cuda.is_available()
 
 # load data
 transform=transforms.Compose([transforms.ToTensor(),
