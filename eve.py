@@ -6,6 +6,7 @@ class Eve(Optimizer):
     """
     implements Eve Algorithm, proposed in `IMPROVING STOCHASTIC GRADIENT DESCENT WITH FEEDBACK`
     """
+
     def __init__(self, params, lr=1e-3, betas=(0.9, 0.999, 0.999), eps=1e-8,
                  k=0.1, K=10, weight_decay=0):
 
@@ -69,16 +70,16 @@ class Eve(Optimizer):
                         delta = k + 1
                         Delta = K + 1
                     else:
-                        delta = 1 / (K+1)
-                        Delta = 1 / (k+1)
+                        delta = 1 / (K + 1)
+                        Delta = 1 / (k + 1)
 
-                    c = min(max(delta, f/ft_2), Delta)
-                    r = abs(c-1) / min(c, 1)
+                    c = min(max(delta, f / ft_2), Delta)
+                    r = abs(c - 1) / min(c, 1)
                     state['ft_1'], state['ft_2'] = c * ft_2, ft_1
                     state['d'] = beta3 * d + (1 - beta3) * r
 
                 # update parameters
-                p.data.addcdiv_(-group['lr']/state['d'],
+                p.data.addcdiv_(-group['lr'] / state['d'],
                                 m_t_hat,
                                 v_t_hat.sqrt().add_(group['eps']))
 

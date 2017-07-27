@@ -17,12 +17,12 @@ epochs = 100
 cuda = torch.cuda.is_available()
 
 # load data
-transform=transforms.Compose([transforms.ToTensor(),
-                              transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-                             ])
+transform = transforms.Compose([transforms.ToTensor(),
+                                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                                ])
 train_loader = torch.utils.data.DataLoader(
     datasets.CIFAR10('data/cifar10', train=True, download=True,
-                   transform=transform),
+                     transform=transform),
     batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(
     datasets.CIFAR10('data/cifar10', train=False, transform=transform),
@@ -37,7 +37,7 @@ class Net(nn.Module):
 
         self.conv3 = nn.Conv2d(32, 64, kernel_size=3)
         self.conv4 = nn.Conv2d(64, 64, kernel_size=3)
-        self.dense1 = nn.Linear(in_features=64*25, out_features=512)
+        self.dense1 = nn.Linear(in_features=64 * 25, out_features=512)
         self.dense1_bn = nn.BatchNorm1d(512)
         self.dense2 = nn.Linear(512, 10)
 
@@ -46,7 +46,7 @@ class Net(nn.Module):
         x = F.relu(F.dropout(F.max_pool2d(self.conv2(x), 2), 0.25))
         x = F.relu(self.conv3(x))
         x = F.relu(F.dropout(F.max_pool2d(self.conv4(x), 2), 0.25))
-        x = x.view(-1, 64*25) #reshape
+        x = x.view(-1, 64 * 25)  # reshape
         x = F.relu(self.dense1_bn(self.dense1(x)))
         return F.log_softmax(self.dense2(x))
 
@@ -58,21 +58,23 @@ def train(epoch, model, optimizer):
         if cuda:
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data), Variable(target)
+
         def closure():
-            optimizer.zero_grad() # reset reset optimizer
+            optimizer.zero_grad()  # reset reset optimizer
             output = model(data)
-            loss = F.nll_loss(output, target) # negative log likelihood loss
-            loss.backward() # backprop
+            loss = F.nll_loss(output, target)  # negative log likelihood loss
+            loss.backward()  # backprop
             return loss
+
         loss = optimizer.step(closure)
         if type(loss) is not float:
             loss = loss.data[0]
-        total_loss += loss*batch_size/len(train_loader)
+        total_loss += loss * batch_size / len(train_loader)
         if batch_idx % 20 == 0:
             print('\rTrain Epoch: {} [{}/{} ({:>4.2%})] Loss: {:>5.3}'.format(
-                  epoch, batch_idx * len(data), len(train_loader.dataset),
-                  batch_idx / len(train_loader), total_loss), 
-                  end="")
+                epoch, batch_idx * len(data), len(train_loader.dataset),
+                       batch_idx / len(train_loader), total_loss),
+                end="")
     return total_loss
 
 
@@ -108,6 +110,7 @@ def plot(loss_a, loss_b, filename, ylabel):
     plt.ylabel(ylabel)
     plt.savefig(filename)
     plt.clf()
+
 
 print("Eve")
 eve_loss = []
