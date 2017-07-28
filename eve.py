@@ -16,11 +16,11 @@ class Eve(Optimizer):
 
     def step(self, closure):
         """
-        try to keep the notations from the original paper
         :param closure: closure returns loss. see http://pytorch.org/docs/optim.html#optimizer-step-closure
         :return: loss
         """
-        loss = closure().data[0]
+        loss = closure()
+        _loss = loss.data[0]  # float
 
         for group in self.param_groups:
 
@@ -37,7 +37,7 @@ class Eve(Optimizer):
                     state['v_t'] = grad.new().resize_as_(grad).zero_()
                     # f hats, smoothly tracked objective functions
                     # \hat{f}_0 = f_0
-                    state['ft_2'], state['ft_1'] = loss, None
+                    state['ft_2'], state['ft_1'] = _loss, None
                     state['d'] = 1
 
                 m_t, v_t = state['m_t'], state['v_t']
@@ -49,11 +49,11 @@ class Eve(Optimizer):
                 # initialization of \hat{f}_1
                 if t == 1:
                     # \hat{f}_1 = f_1
-                    state['ft_1'] = loss
+                    state['ft_1'] = _loss
                 # \hat{f_{t-1}}, \hat{f_{t-2}}
                 ft_1, ft_2 = state['ft_1'], state['ft_2']
                 # f(\theta_{t-1})
-                f = loss
+                f = _loss
 
                 if group['weight_decay'] != 0:
                     grad = grad.add(group['weight_decay'], p.data)
