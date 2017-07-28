@@ -67,9 +67,7 @@ def train(epoch, model, optimizer):
             return loss
 
         loss = optimizer.step(closure)
-        if type(loss) is not float:
-            loss = loss.data[0]
-        total_loss += loss * batch_size / len(train_loader)
+        total_loss += loss.data[0] / len(train_loader)
         if batch_idx % 20 == 0:
             print('\rTrain Epoch: {} [{}/{} ({:>4.2%})] Loss: {:>5.3}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
@@ -102,7 +100,6 @@ def plot(loss_a, loss_b, filename, ylabel):
     import matplotlib
     matplotlib.use("AGG")
     import matplotlib.pyplot as plt
-    import numpy as np
     plt.plot(loss_a)
     plt.plot(loss_b)
     plt.legend(["Eve", "Adam"])
