@@ -4,7 +4,7 @@ from torch.optim import Optimizer
 
 class Eve(Optimizer):
     """
-    implements Eve Algorithm, proposed in `IMPROVING STOCHASTIC GRADIENT DESCENT WITH FEEDBACK`
+    Implements Eve Algorithm, proposed in `IMPROVING STOCHASTIC GRADIENT DESCENT WITH FEEDBACK`
     """
 
     def __init__(self, params, lr=1e-3, betas=(0.9, 0.999, 0.999), eps=1e-8,
@@ -59,8 +59,8 @@ class Eve(Optimizer):
                     grad = grad.add(group['weight_decay'], p.data)
 
                 # Decay the first and second moment running average coefficient
-                m_t.mul_(beta1).add_(1 - beta1, grad)
-                v_t.mul_(beta2).addcmul_(1 - beta2, grad, grad)
+                m_t.mul_(beta1).add_(grad, alpha=1-beta1)
+                v_t.mul_(beta2).addcmul_(grad, grad, value=1-beta2)
 
                 m_t_hat = m_t / (1 - beta1 ** t)
                 v_t_hat = v_t / (1 - beta2 ** t)
@@ -79,8 +79,8 @@ class Eve(Optimizer):
                     state['d'] = beta3 * d + (1 - beta3) * r
 
                 # update parameters
-                p.data.addcdiv_(-group['lr'] / state['d'],
-                                m_t_hat,
-                                v_t_hat.sqrt().add_(group['eps']))
+                p.data.addcdiv_(m_t_hat,
+                                v_t_hat.sqrt().add_(group['eps']),
+                                value=-group['lr']/state['d'])
 
         return loss
